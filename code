@@ -1,0 +1,247 @@
+#include <iostream>
+template <typename tvar>
+class elementinabox
+{
+    private:
+        std::string actual_value;
+        size_t limit;
+        bool empty;
+        char** makearr()
+        {
+            char** makearr=(char**)malloc(4*sizeof(char*));
+            for(int i=0;i<4;i++)
+                makearr[i]=(char*)malloc(sizeof(char)*(limit));
+            return makearr;
+        }
+        void makechanges()
+        {
+            size_t i=0,j=0;//itirating variables for array
+            size_t d=0;//Itirating variables for String
+            arr[i][j++]=' ';
+            for(int k=0;k<limit-2;k++)
+                arr[i][j++]='_';
+            arr[i][j++]=' ';
+            j=0;
+            arr[++i][j++]='|';
+            for(int k=0;k<limit-2;k++)
+                arr[i][j++]=' ';
+            arr[i][j++]='|';
+            j=0;
+            arr[++i][j++]='|';
+            arr[i][j++]=' ';
+            //This is where the number goes
+            for(int k=0;k<limit-4;k++)
+                arr[i][j++]=actual_value[d++];
+            //Inside this
+            arr[i][j++]=' ';
+            arr[i][j++]='|';
+            j=0;
+            arr[++i][j++]='|';    
+            for(int k=0;k<limit-2;k++)
+                arr[i][j++]='_';
+            arr[i][j++]='|'; 
+        }
+    public:
+        char **arr;
+        elementinabox(tvar var)
+        {
+            actual_value=std::to_string(var);
+            limit=actual_value.size()+4;
+            arr=makearr();
+            makechanges();
+            empty=false;
+        }
+        void displayarr()
+        {
+            if(empty)
+            {
+                std::cout<<"Empty thing";
+                return;
+            }
+            for(int i=0;i<4;i++)
+            {
+                for(int j=0;j<limit;j++)
+                    std::cout<<arr[i][j];
+                std::cout<<"\n";
+            }
+        }
+        int returnlimit()
+        {
+            return limit;
+        }
+        void deleteelementinabox()
+        {
+            for(int i=0;i<4;i++)
+                free(arr[i]);
+            free(arr);
+            empty=true;
+        }
+};
+template <typename newtvar>
+class elements
+{
+    private:
+        char** arrow;
+        char** allarr;
+        int limits;
+        int number;
+        int sizeofscreen=100;
+        elementinabox<newtvar> **arrobj;
+        void makearrow()
+        {
+            arrow=(char**)malloc(4*(sizeof(char*)));
+            for(int i=0;i<4;i++)
+                arrow[i]=(char*)malloc(sizeof(char)*2);
+            for(int i=0;i<4;i++)
+            {
+                for(int j=0;j<2;j++)
+                    arrow[i][j]=' ';
+            }
+            arrow[2][0]='<';
+            arrow[2][1]='-';
+        }
+        void addelementsinabox()
+        {
+            allarr=(char**)malloc((4)*sizeof(char*));
+            for(size_t i=0;i<4;i++)
+                allarr[i]=(char*)malloc((limits+1)*sizeof(char));
+            size_t k=0;//This one is for counting of elements that have been added(goes upto number-1)
+            size_t l=0;//This is for position of cursor(goes upto limits)
+            while(k<number)
+            {
+                for(int i=0;i<4;i++)
+                {
+                    for(int j=0;j<arrobj[k]->returnlimit();j++)
+                    {   
+                        allarr[i][j+l+k*2]=arrobj[k]->arr[i][j];
+                    }
+                }
+                l+=arrobj[k]->returnlimit();
+                if(k!=number-1)
+                {
+                    for(int i=0;i<4;i++)
+                    {
+                        {   
+                            for(int j=0;j<2;j++)
+                                allarr[i][j+l+2*k]=arrow[i][j];
+                        }
+                    }
+                }
+                k++;
+            }
+        }
+        void display(int m)
+        {
+            int j;
+            for(int i=0;i<4;i++)
+            {
+                for(j=m;j<sizeofscreen+m&&j<limits;j++)
+                    std::cout<<allarr[i][j];
+                std::cout<<"\n";
+            }
+            if(j!=limits)
+            {
+                /*for(int i=0;i<5;i++)
+                    std::cout<<" ";
+                std::cout<<"|";
+                for(int i=0;i<j-9;i++)
+                    std::cout<<"-";
+                std::cout<<"|";
+                std::cout<<"\n";*/
+                display(j);
+            }
+        }
+    public:
+        elements(newtvar* arr,int n)
+        {
+            number=n;
+            makearrow();
+            arrobj=(elementinabox<newtvar>**)malloc(n*sizeof(elementinabox<newtvar>*));
+            for(int i=0;i<n;i++)
+                arrobj[i]=new elementinabox<newtvar>(arr[i]);
+            limits=0;
+            for(int i=0;i<n-1;i++)
+                limits=limits+arrobj[i]->returnlimit()+2;
+            limits=limits+arrobj[n-1]->returnlimit();
+            addelementsinabox();
+        }
+        void display()
+        {
+            int n=(limits>sizeofscreen)?sizeofscreen:limits;
+            int j=0;
+            int k=1;
+            int temp;
+            for(int i=j;i<n+j;i++)
+            {
+                if(allarr[2][i]=='-')
+                    k++;
+            }
+            for(int i=j;i<n+j;i++)
+            {
+                if((allarr[2][i]=='<')&&((i+1+arrobj[k-1]->returnlimit())>(sizeofscreen)))
+                    temp=i;
+            }
+            for(int i=0;i<4;i++)
+            {
+                for(j=0;j<n&&j<temp;j++)
+                    std::cout<<allarr[i][j];
+                std::cout<<"\n";
+            }
+            if(n!=limits)
+            {
+                /*for(int i=0;i<5;i++)
+                    std::cout<<" ";
+                std::cout<<"|";
+                for(int i=0;i<j-9;i++)
+                    std::cout<<"-";
+                std::cout<<"|";
+                std::cout<<"\n";*/
+                display(j);
+            }
+        }
+        ~elements()
+        {
+            for(size_t i=0;i<number;i++)
+                arrobj[i]->deleteelementinabox();
+            for(size_t i=0;i<number;i++)
+                free(arrobj[i]);
+            free(arrobj);
+        }
+};
+template <typename processor>
+void proc(int n)
+{
+    processor *temparr=(processor*)malloc(n*sizeof(processor));
+    std::cout<<"Enter the elements-------\n";
+    for(int i=0;i<n;i++)
+    {
+        std::cout<<"Array["<<i<<"]=";
+        std::cin>>temparr[i];
+    }
+    elements<processor> obj(temparr,n);
+    obj.display();
+    free(temparr);
+}
+int main()
+{
+    std::cout<<"Enter the number of elements:";
+    int n;
+    std::cin>>n;
+    std::cout<<"Enter the desired datatype:\n1.Integer\n2.Double\n3.Character\nChoice=";
+    int c;
+    std::cin>>c;
+    switch (c)
+    {
+    case 1:
+        proc<int>(n);
+        break;
+    case 2:
+        proc<double>(n);
+        break;
+    case 3:
+        proc<char>(n);
+        break;
+    default:
+        break;
+    }
+}
